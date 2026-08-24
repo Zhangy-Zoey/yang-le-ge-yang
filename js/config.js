@@ -41,14 +41,14 @@
       mist: 'rgba(140,160,155,0.09)',
     },
     ui: {
-      side: 20,
+      side: 14,
       safeTop: 22,
       headerH: 42,
-      gapHeaderBoard: 18,
-      gapBoardDock: 16,
+      gapHeaderBoard: 14,
+      gapBoardDock: 12,
       dockLabelH: 14,
-      dockPadX: 8,
-      dockSlotGap: 2,
+      dockPadX: 4,
+      dockSlotGap: 1,
       dockPadY: 8,
       gapDockBtn: 12,
       btnH: 44,
@@ -56,7 +56,7 @@
       restartBtnW: 56,
       btnGap: 10,
       safeBottom: 20,
-      boardPad: 18,
+      boardPad: 14,
       tileBiasY: 0.32,
     },
     levels: [
@@ -115,7 +115,7 @@
     let th = CONFIG.tileH;
     let slotRowW = capacity * tw + (capacity - 1) * slotGap;
 
-    while (slotRowW > maxDockInner && tw > 44) {
+    while (slotRowW > maxDockInner && tw > 48) {
       tw -= 1;
       th = tw;
       slotRowW = capacity * tw + (capacity - 1) * slotGap;

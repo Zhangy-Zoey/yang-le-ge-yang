@@ -200,33 +200,9 @@
     }
   }
 
-  /** 棋盘纸面：按本关全部棋子（含已消）定框，消牌时尺寸不变 */
-  function contentFrame(tiles, L) {
-    if (!tiles.length) {
-      return { x: L.boardX + 24, y: L.boardY + 24, w: L.boardW - 48, h: 160 };
-    }
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    tiles.forEach((t) => {
-      minX = Math.min(minX, t.x);
-      minY = Math.min(minY, t.y);
-      maxX = Math.max(maxX, t.x + t.w);
-      maxY = Math.max(maxY, t.y + t.h);
-    });
-    const pad = 22;
-    const x = Math.max(L.boardX, minX - pad);
-    const y = Math.max(L.boardY, minY - pad);
-    const fw = Math.min(L.boardX + L.boardW - x, maxX - minX + pad * 2);
-    const fh = Math.min(L.boardY + L.boardH - y, maxY - minY + pad * 2);
-    return { x, y, w: Math.max(160, fw), h: Math.max(120, fh) };
-  }
-
-  /** 棋盘：宣纸裁切 —— 无厚框，仅淡青瓷线 */
-  function drawPaperBoard(ctx, L, tiles) {
-    const f = contentFrame(tiles, L);
-    const { x, y, w, h } = f;
+  /** 棋盘：宣纸裁切 —— 占满可用棋区，不随棋子数量收缩 */
+  function drawPaperBoard(ctx, L) {
+    const { boardX: x, boardY: y, boardW: w, boardH: h } = L;
 
     ctx.save();
     ctx.shadowColor = 'rgba(70,90,80,0.05)';
@@ -473,7 +449,7 @@
     const L = game.layout ? game.layout() : getLayout(game.width, game.height);
 
     drawLiteratiGround(ctx, L, t);
-    drawPaperBoard(ctx, L, game.tiles);
+    drawPaperBoard(ctx, L);
     drawAirHeader(ctx, game, L);
 
     game.tiles

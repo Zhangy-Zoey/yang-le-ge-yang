@@ -8,18 +8,18 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   // tint: [玉心, 玉边] —— 从各花 PNG 主色提取，再略羊脂润；花色彼此可辨
   const FLOWER_CATALOG = [
-    { id: 'plum', name: '梅', src: 'assets/flowers/plum.png?v=3', tint: ['#F0D0C8', '#B86858'] },
-    { id: 'peony', name: '牡丹', src: 'assets/flowers/peony.png?v=3', tint: ['#F4D0CC', '#C87870'] },
-    { id: 'orchid', name: '兰', src: 'assets/flowers/orchid.png?v=3', tint: ['#DCE8D4', '#88A080'] },
-    { id: 'lotus', name: '莲', src: 'assets/flowers/lotus.png?v=3', tint: ['#E4EEE4', '#98B8A8'] },
-    { id: 'chrysanthemum', name: '菊', src: 'assets/flowers/chrysanthemum.png?v=3', tint: ['#F0E4B8', '#C0A048'] },
-    { id: 'peach', name: '桃', src: 'assets/flowers/peach.png?v=3', tint: ['#F8E0D4', '#D89078'] },
-    { id: 'begonia', name: '海棠', src: 'assets/flowers/begonia.png?v=3', tint: ['#F2D0D4', '#C07080'] },
-    { id: 'hibiscus', name: '芙蓉', src: 'assets/flowers/hibiscus.png?v=3', tint: ['#F0C8C0', '#B86860'] },
-    { id: 'osmanthus', name: '桂', src: 'assets/flowers/osmanthus.png?v=3', tint: ['#E8E0B0', '#989048'] },
-    { id: 'herbPeony', name: '芍药', src: 'assets/flowers/herbPeony.png?v=3', tint: ['#F0D0D8', '#B87888'] },
-    { id: 'lilac', name: '丁香', src: 'assets/flowers/lilac.png?v=3', tint: ['#E0D4E4', '#9888A8'] },
-    { id: 'magnolia', name: '玉兰', src: 'assets/flowers/magnolia.png?v=3', tint: ['#EEE8E0', '#B8A898'] },
+    { id: 'plum', name: '梅', src: 'assets/flowers/plum.png?v=3', tint: ['#FAECE8', '#EEC8C0'] },
+    { id: 'peony', name: '牡丹', src: 'assets/flowers/peony.png?v=3', tint: ['#FAE8E6', '#F0C8C0'] },
+    { id: 'orchid', name: '兰', src: 'assets/flowers/orchid.png?v=3', tint: ['#EEF6EA', '#D0E4C8'] },
+    { id: 'lotus', name: '莲', src: 'assets/flowers/lotus.png?v=3', tint: ['#F2F8F4', '#C8E0D8'] },
+    { id: 'chrysanthemum', name: '菊', src: 'assets/flowers/chrysanthemum.png?v=3', tint: ['#FAF4DC', '#EDE0A8'] },
+    { id: 'peach', name: '桃', src: 'assets/flowers/peach.png?v=3', tint: ['#FCF0EA', '#F4D0C0'] },
+    { id: 'begonia', name: '海棠', src: 'assets/flowers/begonia.png?v=3', tint: ['#FAE8EC', '#ECC0C8'] },
+    { id: 'hibiscus', name: '芙蓉', src: 'assets/flowers/hibiscus.png?v=3', tint: ['#FAE6E2', '#EAC0B8'] },
+    { id: 'osmanthus', name: '桂', src: 'assets/flowers/osmanthus.png?v=3', tint: ['#F6F2D8', '#E4D898'] },
+    { id: 'herbPeony', name: '芍药', src: 'assets/flowers/herbPeony.png?v=3', tint: ['#FAE8EE', '#ECC8D4'] },
+    { id: 'lilac', name: '丁香', src: 'assets/flowers/lilac.png?v=3', tint: ['#F2EAFA', '#D8CCE8'] },
+    { id: 'magnolia', name: '玉兰', src: 'assets/flowers/magnolia.png?v=3', tint: ['#F8F4EE', '#E8DED4'] },
   ];
 
   /** 羊脂白（空槽/底色） */
@@ -121,10 +121,11 @@
     ctx.drawImage(img, dx, dy, dw, dh);
   }
 
-  /** 羊脂润实玉：不透明底 + 花色主导（叠牌不穿透） */
+  /** 羊脂润实玉：淡色不透明底 + 花色可辨（叠牌不穿透） */
   function drawJadeBase(ctx, x, y, w, h, light, deep, blocked) {
-    const jLight = mixHex(light, '#F5EDE4', blocked ? 0.2 : 0.1);
-    const jDeep = mixHex(deep, '#988878', blocked ? 0.15 : 0.06);
+    const jLight = mixHex(light, '#FFFBF6', blocked ? 0.28 : 0.18);
+    const jDeep = mixHex(deep, '#FFFBF6', blocked ? 0.38 : 0.28);
+    const jEdge = mixHex(jDeep, '#FFF8F2', 0.42);
     const r = Math.min(w, h) * 0.44;
     const cx = x + w / 2;
     const cy = y + h / 2;
@@ -132,8 +133,8 @@
 
     ctx.save();
     if (!blocked) {
-      ctx.shadowColor = 'rgba(70,62,52,0.16)';
-      ctx.shadowBlur = 6;
+      ctx.shadowColor = 'rgba(70,62,52,0.1)';
+      ctx.shadowBlur = 5;
       ctx.shadowOffsetY = 2;
     }
 
@@ -141,14 +142,14 @@
 
     const body = ctx.createRadialGradient(cx - w * 0.16, cy - h * 0.2, w * 0.04, cx, cy + h * 0.02, spread);
     if (blocked) {
-      body.addColorStop(0, mixHex(jLight, '#E8E0D8', 0.25));
-      body.addColorStop(0.55, mixHex(jLight, jDeep, 0.2));
-      body.addColorStop(1, mixHex(jDeep, '#A89888', 0.15));
+      body.addColorStop(0, mixHex(jLight, '#FFF8F2', 0.35));
+      body.addColorStop(0.6, jLight);
+      body.addColorStop(1, jEdge);
     } else {
-      body.addColorStop(0, mixHex(jLight, '#FFF8F0', 0.18));
-      body.addColorStop(0.38, jLight);
-      body.addColorStop(0.72, mixHex(jLight, jDeep, 0.32));
-      body.addColorStop(1, jDeep);
+      body.addColorStop(0, mixHex(jLight, '#FFFFFF', 0.42));
+      body.addColorStop(0.42, jLight);
+      body.addColorStop(0.78, mixHex(jLight, jDeep, 0.22));
+      body.addColorStop(1, jEdge);
     }
     ctx.fillStyle = body;
     ctx.fill();
@@ -156,8 +157,8 @@
 
     ctx.clip();
 
-    ctx.globalAlpha = blocked ? 0.06 : 0.12;
-    ctx.strokeStyle = mixHex(jDeep, '#806858', 0.2);
+    ctx.globalAlpha = blocked ? 0.05 : 0.1;
+    ctx.strokeStyle = mixHex(jDeep, '#D8D0C8', 0.35);
     ctx.lineWidth = 0.45;
     ctx.lineCap = 'round';
     ctx.beginPath();
@@ -165,17 +166,17 @@
     ctx.quadraticCurveTo(cx, cy + h * 0.02, x + w * 0.82, y + h * 0.78);
     ctx.stroke();
 
-    ctx.globalAlpha = blocked ? 0.05 : 0.08;
-    const warm = ctx.createLinearGradient(x, y + h * 0.55, x, y + h);
+    ctx.globalAlpha = blocked ? 0.03 : 0.05;
+    const warm = ctx.createLinearGradient(x, y + h * 0.62, x, y + h);
     warm.addColorStop(0, 'rgba(0,0,0,0)');
-    warm.addColorStop(1, hexA(mixHex(jDeep, '#705840', 0.15), 0.22));
+    warm.addColorStop(1, hexA(mixHex(jDeep, '#E8E0D8', 0.55), 0.1));
     ctx.fillStyle = warm;
     ctx.fillRect(x, y, w, h);
 
     ctx.restore();
 
     roundRect(ctx, x, y, w - 1, h - 1, r);
-    ctx.strokeStyle = blocked ? 'rgba(150,140,128,0.4)' : mixHex(jLight, '#FFF8F0', 0.25);
+    ctx.strokeStyle = blocked ? 'rgba(180,172,162,0.32)' : mixHex(jLight, '#FFFFFF', 0.45);
     ctx.lineWidth = 0.95;
     ctx.stroke();
 
@@ -183,9 +184,9 @@
       ctx.save();
       roundRect(ctx, x, y, w - 1, h - 1, r);
       ctx.clip();
-      ctx.globalAlpha = 0.35;
+      ctx.globalAlpha = 0.42;
       const spec = ctx.createRadialGradient(cx - w * 0.1, cy - h * 0.26, 0, cx - w * 0.06, cy - h * 0.2, w * 0.28);
-      spec.addColorStop(0, 'rgba(255,248,238,0.7)');
+      spec.addColorStop(0, 'rgba(255,252,248,0.82)');
       spec.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.fillStyle = spec;
       ctx.fillRect(x, y, w, h);
