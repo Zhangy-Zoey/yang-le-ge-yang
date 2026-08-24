@@ -1,0 +1,22 @@
+{
+  "description": "羊了个羊风格复现 - 微信小游戏",
+  "packOptions": {
+    "ignore": [
+      {
+        "value": "index.html",
+        "type": "file"
+      }
+    ]
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "game",
+  "libVersion": "3.5.5",
+  "appid": "touristappid",
+  "projectname": "yang-le-ge-yang",
+  "condition": {}
+}
