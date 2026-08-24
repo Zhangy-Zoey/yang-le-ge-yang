@@ -1,0 +1,26 @@
+{
+  "libVersion": "3.17.1",
+  "projectname": "yang-le-ge-yang",
+  "compileType": "minigame",
+  "appid": "wxacbdb49846d60212",
+  "isGameTourist": false,
+  "condition": {},
+  "setting": {
+    "urlCheck": false,
+    "coverView": false,
+    "lazyloadPlaceholderEnable": false,
+    "skylineRenderEnable": false,
+    "preloadBackgroundData": false,
+    "autoAudits": false,
+    "useApiHook": true,
+    "showShadowRootInWxmlPanel": false,
+    "useStaticServer": false,
+    "useLanDebug": false,
+    "showES6CompileOption": false,
+    "compileHotReLoad": false,
+    "checkInvalidKey": true,
+    "ignoreDevUnusedFiles": true,
+    "bigPackageSizeSupport": false,
+    "uploadWithSourceMap": false
+  }
+}

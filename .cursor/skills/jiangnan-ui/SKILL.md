@@ -26,7 +26,7 @@ This project implements the look defined in personal skill `ui-design/looks/jian
 1. **Background 虚，棋子 实** — decorative ink bamboo/peach stays low alpha; play area gets a light veil; tiles stay high contrast.
 2. **No xianxia chrome** — no gold borders, heavy wood frames, neon glow, explosion VFX.
 3. **Round / soft shapes** — tile radius ~36% of min(w,h); avoid sharp rects on tokens.
-4. **Accent sparingly** — rouge `#B87A7C` for stamps, tips, lose state; celadon `#7F9E96` for lines and win.
+4. **Accent sparingly** — rouge `#C49090` for stamps, tips, lose state; celadon `#8FAE9E` for lines and win.
 5. **Vertical flow** — header → board (breathing gap) → dock → buttons; increase gaps before adding decoration.
 
 ## Flower assets
@@ -36,6 +36,15 @@ Drop PNGs into `assets/flowers/` using catalog ids (`plum.png`, `peony.png`, …
 **Prompt (棋子):**
 
 > 古风消消乐游戏棋子，玉石质感，琉璃质感，花瓣形状，水彩边缘晕染，淡粉色和浅青色，工笔画质感，透明背景，清新淡雅
+
+## Related skills
+
+| Task | Skill |
+|------|-------|
+| Level layout / difficulty | `level-design` |
+| wx + browser dev | `dual-runtime` |
+| Flower PNG pipeline | `flower-assets` |
+| Upload / pack check | `wechat-ship` |
 
 ## When changing visuals
 

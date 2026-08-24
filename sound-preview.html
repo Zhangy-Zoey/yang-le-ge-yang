@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>三消音效试听 · 专业素材</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "PingFang SC", sans-serif;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+      background: #f5f0e8;
+      color: #2c2419;
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 8px; }
+    p { font-size: 0.9rem; color: #5c5040; line-height: 1.6; }
+    .card {
+      display: flex; align-items: center; gap: 12px;
+      background: #fff; border: 1px solid #e0d8cc; border-radius: 10px;
+      padding: 12px 14px; margin-bottom: 8px;
+    }
+    .id {
+      width: 40px; height: 40px; border-radius: 8px; background: #3d6b5a;
+      color: #fff; font-weight: 700; font-size: 0.72rem;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .info { flex: 1; }
+    .info strong { display: block; font-size: 0.95rem; }
+    .info span { font-size: 0.78rem; color: #7a6e5e; }
+    button {
+      border: none; background: #c9a86c; color: #fff;
+      font-size: 0.85rem; padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    }
+    .tip {
+      margin-top: 20px; padding: 14px; background: #ebe4d6;
+      border-radius: 10px; font-size: 0.85rem; line-height: 1.7;
+    }
+    code { background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+    #status { font-size: 0.85rem; color: #3d6b5a; min-height: 1.2em; margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>三消音效试听（实录级 · MP3）</h1>
+  <p>换了一批<strong>专业游戏音效</strong>（Kenney CC0），不是之前那种程序合成的。先试 <strong>D01、D04、D07</strong>。</p>
+  <p id="status"></p>
+  <div id="list"></div>
+  <div class="tip">
+    <strong>文件夹路径</strong><br />
+    <code>yang-le-ge-yang/sounds/preview/real/</code><br />
+    双击 <code>D01.mp3</code> 等也能听。<br /><br />
+    听完后回复：<code>喜欢 D04</code> 或 <code>D07 但要更短</code>
+  </div>
+  <script>
+    const items = [
+      ['D01', '玻璃轻碰 · 脆', '最短最利，像玉片轻磕'],
+      ['D02', '玻璃轻碰 · 清', '略柔一点'],
+      ['D03', '玻璃中碰', '稍厚，有余韵'],
+      ['D04', '瓷盘轻碰', '★ 很像玉器相碰，推荐'],
+      ['D05', '瓷盘清脆', '比 D04 更亮'],
+      ['D06', '铃碰 · 厚', '偏钟磬感'],
+      ['D07', '铃碰 · 亮', '★ 清脆悦耳，消除类常用'],
+      ['D08', '金属脆叮', '极短，很干脆'],
+      ['D09', '轻击 · 游戏感', '休闲手游风格'],
+      ['D10', '柔碰', '不刺，偏软'],
+      ['D11', '矿物碰', '像石子/玉石块'],
+      ['D12', '玻璃重碎', '偏摔碎，略重'],
+    ];
+    const audios = {};
+    const el = document.getElementById('list');
+    const status = document.getElementById('status');
+    items.forEach(([key, title, desc]) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = '<div class="id">' + key + '</div><div class="info"><strong>' + title + '</strong><span>' + desc + '</span></div>';
+      const btn = document.createElement('button');
+      btn.textContent = '播放';
+      btn.onclick = () => {
+        if (!audios[key]) {
+          audios[key] = new Audio('sounds/preview/real/' + key + '.mp3');
+        }
+        const a = audios[key];
+        a.currentTime = 0;
+        a.play().then(() => { status.textContent = '播放 ' + key + '…'; }).catch(() => {
+          status.textContent = '请双击 sounds/preview/real/' + key + '.mp3';
+        });
+      };
+      card.appendChild(btn);
+      el.appendChild(card);
+    });
+  </script>
+</body>
+</html>

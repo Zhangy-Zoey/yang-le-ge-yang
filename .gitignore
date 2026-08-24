@@ -1,2 +1,4 @@
 .venv/
 assets/flowers/_raw_white_bg/
+debug.log
+.DS_Store

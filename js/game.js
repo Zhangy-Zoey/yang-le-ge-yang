@@ -4,14 +4,14 @@
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
-    const { CONFIG, getLayout } = require('./config');
+    const { CONFIG, getLayout, getHomeLayout } = require('./config');
     const level = require('./level');
     const { SlotBar } = require('./slot');
-    module.exports = factory(CONFIG, getLayout, level, SlotBar);
+    module.exports = factory(CONFIG, getLayout, getHomeLayout, level, SlotBar);
   } else {
-    Object.assign(root, factory(root.CONFIG, root.getLayout, root, root.SlotBar));
+    Object.assign(root, factory(root.CONFIG, root.getLayout, root.getHomeLayout, root, root.SlotBar));
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (CONFIG, getLayout, levelApi, SlotBar) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (CONFIG, getLayout, getHomeLayout, levelApi, SlotBar) {
   const { createLevel, refreshBlocked, findTileAt, shuffle } = levelApi;
 
   function easeOutCubic(t) {
@@ -31,18 +31,22 @@
       this.slotBar = new SlotBar();
       this.hold = [];
       this.history = [];
-      this.status = 'playing';
+      this.status = 'home';
       this.message = '';
       this.props = { undo: 3, remove: 1, shuffle: 2 };
       this.buttons = [];
+      this.tiles = [];
+      this.boardFrame = null;
+      this.levelName = '';
       this.levelIndex = 0;
       this.now = 0;
       this.fx = { flies: [], bursts: [], shakes: {}, impacts: [] };
       this.matchFlash = 0;
       this.slotShake = 0;
       this.combo = 0;
+      this.btnPress = {};
       this._audioCtx = null;
-      this.startLevel(0);
+      this.homeLayout = () => getHomeLayout(this.width, this.height);
     }
 
     layout() {
@@ -54,14 +58,27 @@
       const L = this.layout();
       CONFIG.boardTop = L.boardTop;
       const level = createLevel(this.levelIndex, this.width, {
+        x: L.boardX,
         y: L.boardY,
+        w: L.boardW,
         h: L.boardH,
         pad: L.boardPad,
+        bottomReserve: L.boardBottomReserve,
+        widthBias: CONFIG.ui.boardFillWidthBias,
         verticalBias: CONFIG.ui.tileBiasY,
+        fillRatio: CONFIG.ui.boardFillRatio,
+        framePad: CONFIG.ui.boardFramePad,
+        layerSpreadY: CONFIG.ui.layerSpreadY,
         tileW: L.tw,
         tileH: L.th,
       });
       this.tiles = level.tiles;
+      this.boardFrame = {
+        x: L.boardX,
+        y: L.boardY,
+        w: L.boardW,
+        h: L.boardH,
+      };
       this.levelName = level.name;
       this.slotBar.clear();
       this.hold = [];
@@ -73,6 +90,7 @@
       this.matchFlash = 0;
       this.slotShake = 0;
       this.combo = 0;
+      this.btnPress = {};
       refreshBlocked(this.tiles);
       this.layoutUI();
     }
@@ -115,25 +133,75 @@
       return this._audioCtx;
     }
 
-    /** 短促击打音：头音硬、尾音短 */
-    playHitSound(pitch = 1) {
+    /** 玉摔碎：单次冲击 + 模态共振，脆而不糊 */
+    playJadeShatterSound(pitch = 1) {
       const ctx = this.ensureAudio();
       if (!ctx) return;
       try {
         if (ctx.state === 'suspended') ctx.resume();
         const t0 = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(520 * pitch, t0);
-        osc.frequency.exponentialRampToValueAtTime(180 * pitch, t0 + 0.045);
-        gain.gain.setValueAtTime(0.0001, t0);
-        gain.gain.exponentialRampToValueAtTime(0.11, t0 + 0.004);
-        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.07);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t0);
-        osc.stop(t0 + 0.08);
+        const out = ctx.createGain();
+        out.gain.setValueAtTime(0.9, t0);
+        out.connect(ctx.destination);
+
+        const makeImpulse = (ms, curve = 3.5) => {
+          const len = Math.max(1, Math.floor(ctx.sampleRate * ms));
+          const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+          const ch = buf.getChannelData(0);
+          for (let i = 0; i < len; i++) {
+            ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, curve);
+          }
+          return buf;
+        };
+
+        const playMode = (offset, impulseMs, freq, q, peak, decay) => {
+          const src = ctx.createBufferSource();
+          src.buffer = makeImpulse(impulseMs);
+          const bp = ctx.createBiquadFilter();
+          bp.type = 'bandpass';
+          bp.frequency.value = freq * pitch;
+          bp.Q.value = q;
+          const g = ctx.createGain();
+          const t = t0 + offset;
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(peak, t + 0.0004);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+          src.connect(bp);
+          bp.connect(g);
+          g.connect(out);
+          src.start(t);
+          src.stop(t + decay + 0.01);
+        };
+
+        const playCrack = () => {
+          const src = ctx.createBufferSource();
+          src.buffer = makeImpulse(0.004, 4.2);
+          const hp = ctx.createBiquadFilter();
+          hp.type = 'highpass';
+          hp.frequency.value = 1800 * pitch;
+          hp.Q.value = 0.9;
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.0001, t0);
+          g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.0002);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.012);
+          src.connect(hp);
+          hp.connect(g);
+          g.connect(out);
+          src.start(t0);
+          src.stop(t0 + 0.014);
+        };
+
+        playCrack();
+
+        // 玉质非谐波模态：摔碎后的脆响主体
+        playMode(0, 0.003, 2180, 14, 0.14, 0.03);
+        playMode(0, 0.003, 3150, 16, 0.11, 0.024);
+        playMode(0, 0.003, 4520, 18, 0.085, 0.02);
+        playMode(0, 0.003, 5980, 20, 0.06, 0.016);
+
+        // 两粒小屑碰擦
+        playMode(0.014, 0.002, 5100, 22, 0.055, 0.011);
+        playMode(0.026, 0.002, 6400, 24, 0.04, 0.009);
       } catch (_) {
         /* ignore */
       }
@@ -160,6 +228,40 @@
       } catch (_) {
         /* ignore */
       }
+    }
+
+    /** 青玉键轻触：一声短脆，不抢戏 */
+    playMetalClickSound() {
+      const ctx = this.ensureAudio();
+      if (!ctx) return;
+      try {
+        if (ctx.state === 'suspended') ctx.resume();
+        const t0 = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(920, t0);
+        osc.frequency.exponentialRampToValueAtTime(680, t0 + 0.04);
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.exponentialRampToValueAtTime(0.028, t0 + 0.003);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.045);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.05);
+      } catch (_) {
+        /* ignore */
+      }
+    }
+
+    pressButton(key) {
+      this.btnPress[key] = 1;
+      this.playMetalClickSound();
+      this.vibrate(5);
+    }
+
+    buttonPressAmount(key) {
+      return this.btnPress[key] || 0;
     }
 
     vibrate(ms = 14) {
@@ -201,6 +303,9 @@
 
       if (this.matchFlash > 0) this.matchFlash = Math.max(0, this.matchFlash - 0.09);
       if (this.slotShake > 0) this.slotShake = Math.max(0, this.slotShake - 0.12);
+      Object.keys(this.btnPress).forEach((k) => {
+        if (this.btnPress[k] > 0) this.btnPress[k] = Math.max(0, this.btnPress[k] - 0.2);
+      });
 
       // 兜底：若有遗留 matching 且没有进行中的匹配飞行动画，强制清除
       if (
@@ -302,7 +407,7 @@
       this.matchFlash = 1;
       this.slotShake = 1;
       this.vibrate(this.combo > 1 ? 22 : 14);
-      this.playHitSound(pitch);
+      this.playJadeShatterSound(pitch);
       this.message = this.combo > 1 ? `连消 ×${this.combo}` : '花开三联';
     }
 
@@ -313,7 +418,7 @@
       });
     }
 
-    /** 第三枚入槽后立即消除；飞行动画仅作表现，落地不再二次 commit */
+    /** 第三枚落地后三朵同消；入槽时只标记，不立刻清槽 */
     resolveMatch(fly) {
       if (fly.fxDone) return;
 
@@ -327,6 +432,7 @@
       const popSlots = this.buildMatchPopSlots(indexes, fly.icon);
       this.slotBar.finalizeMatch(fly.matchGroup, indexes);
       this.playMatchFx(popSlots, fly.icon);
+      fly.fxDone = true;
       this.checkEnd();
     }
 
@@ -336,15 +442,11 @@
         : Math.min(result.index, CONFIG.slotCapacity - 1);
       const dest = this.slotPos(destIndex);
 
-      let fxDone = false;
-      if (result.matched) {
-        const popSlots = this.buildMatchPopSlots(result.matchIndexes, icon);
-        this.slotBar.finalizeMatch(result.matchGroup, result.matchIndexes);
-        this.playMatchFx(popSlots, icon);
-        fxDone = true;
-      } else {
+      if (!result.matched) {
         this.combo = 0;
         this.message = '';
+      } else {
+        this.message = '花开三联';
       }
 
       this.spawnFly(
@@ -355,16 +457,24 @@
         result.index,
         result.matchGroup,
         result.matchIndexes,
-        fxDone
+        false
       );
       this.checkEnd();
     }
 
-    /** 飞行中的那一格先不画，避免「叠影」 */
+    /** 飞行中的那一格先不画；待消组保留在槽内等第三枚落地 */
     isSlotHiddenByFly(index) {
       return this.fx.flies.some((f) => {
         if (this.now - f.t0 >= f.dur) return false;
-        return !f.matched && f.slotIndex === index;
+        if (!f.matched && f.slotIndex === index) return true;
+        if (
+          f.matched &&
+          f.matchIndexes &&
+          f.matchIndexes[f.matchIndexes.length - 1] === index
+        ) {
+          return true;
+        }
+        return false;
       });
     }
 
@@ -401,6 +511,10 @@
     }
 
     tap(x, y) {
+      if (this.status === 'home') {
+        this.startLevel(0);
+        return;
+      }
       if (this.status === 'win') {
         if (this.levelIndex < CONFIG.levels.length - 1) this.startLevel(this.levelIndex + 1);
         else this.startLevel(0);
@@ -415,6 +529,7 @@
         (b) => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h
       );
       if (btn) {
+        this.pressButton(btn.key);
         this.useProp(btn.key);
         return;
       }

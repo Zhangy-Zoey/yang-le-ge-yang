@@ -5,18 +5,107 @@
       {
         "value": "index.html",
         "type": "file"
+      },
+      {
+        "value": "sound-preview.html",
+        "type": "file"
+      },
+      {
+        "value": ".venv",
+        "type": "folder"
+      },
+      {
+        "value": "sounds/preview",
+        "type": "folder"
+      },
+      {
+        "value": ".git",
+        "type": "folder"
+      },
+      {
+        "value": ".cursor",
+        "type": "folder"
+      },
+      {
+        "value": "assets/flowers/_raw_white_bg",
+        "type": "folder"
+      },
+      {
+        "value": "assets/bg-indigo.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/bg-pink.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/bg-red.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/bg-vermilion.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/bg-wisteria.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/bg1.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/bg2.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/bg3.png",
+        "type": "file"
+      },
+      {
+        "value": "sounds",
+        "type": "folder"
+      },
+      {
+        "value": "scripts",
+        "type": "folder"
+      },
+      {
+        "value": "debug.log",
+        "type": "file"
       }
-    ]
+    ],
+    "include": []
   },
   "setting": {
     "urlCheck": false,
     "es6": true,
     "postcss": true,
-    "minified": true
+    "minified": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": false,
+    "enhance": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
-  "compileType": "game",
+  "compileType": "minigame",
   "libVersion": "3.5.5",
-  "appid": "touristappid",
+  "appid": "wxacbdb49846d60212",
   "projectname": "yang-le-ge-yang",
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {},
+  "isGameTourist": true
 }
